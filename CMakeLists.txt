@@ -22,7 +22,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# Platform detection
 if(WIN32)
     target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WINDOWS)
 elseif(UNIX)
@@ -31,7 +30,6 @@ elseif(UNIX)
     endif()
 endif()
 
-#target_compile_definitions(${PROJECT_NAME} PRIVATE LIBOS_EXPORTS)
 target_compile_definitions(LibOS PRIVATE LIBOS_EXPORTS)
 
 include(X11)
