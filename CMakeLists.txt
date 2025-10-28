@@ -24,11 +24,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 # Platform detection
 if(WIN32)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC PLATFORM_WINDOWS)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WINDOWS)
 elseif(UNIX)
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        target_compile_definitions(${PROJECT_NAME} PUBLIC PLATFORM_LINUX)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_LINUX)
     endif()
 endif()
+
+#target_compile_definitions(${PROJECT_NAME} PRIVATE LIBOS_EXPORTS)
+target_compile_definitions(LibOS PRIVATE LIBOS_EXPORTS)
 
 include(X11)

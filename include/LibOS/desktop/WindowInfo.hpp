@@ -4,7 +4,8 @@
 #include <string>
 
 namespace LibOS::Desktop {
-    struct LIBOS_API WindowInfo {
+    struct WindowInfo {
         std::string title;
+        ~WindowInfo() = default;
     };
 }

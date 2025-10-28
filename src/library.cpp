@@ -1,10 +1,10 @@
 #include "LibOS/LibOS.hpp"
 
-using namespace LibOS;
+using namespace LibOS::Desktop;
 
 namespace LibOS {
-    std::optional<Desktop::WindowInfo> LIBOS_API GetActiveWindow() {
-        auto &instance = DesktopInfoinstance();
-        return instance.GetActiveWindow();
+    std::optional<WindowInfo> GetActiveWindow() {
+        auto result = DesktopInfoinstance()
+        return result.GetActiveWindow();
     }
 }

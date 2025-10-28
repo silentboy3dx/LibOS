@@ -6,7 +6,7 @@
 namespace LibOS::Desktop {
     class Linux : public Base {
     public:
-        virtual ~Linux() = default;
+        ~Linux() override = default;
         static Linux &getInstance();
         std::optional<WindowInfo> GetActiveWindow() override;
     private:
