@@ -3,11 +3,8 @@
 
 #if PLATFORM_LINUX
 #include <X11/Xlib.h>
-#include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <string>
-#include <algorithm>
-#include <cctype>
 #include <cstring>
 #include <iostream>
 #include <optional>
