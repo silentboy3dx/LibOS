@@ -2,13 +2,8 @@
 
 
 namespace LibOS::Desktop {
-    WindowInfo Base::GetActiveWindow() {
+    std::optional<WindowInfo> Base::GetActiveWindow() {
         WindowInfo result = WindowInfo();
         return result;
-    }
-
-    Base& Base::getInstance() {
-        static Base instance;
-        return instance;
     }
 }

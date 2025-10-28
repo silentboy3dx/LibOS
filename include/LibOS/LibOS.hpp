@@ -1,6 +1,8 @@
 #pragma once
 
 #include "LibOS/desktop/Base.hpp"
+#include "LibOS/internals/export.hpp"
+#include "LibOS/LibOS.hpp"
 
 #if PLATFORM_WINDOWS
 #   pragma message("✅ WINDOWS")
@@ -13,7 +15,7 @@
 #elif PLATFORM_LINUX
 
     #include "desktop/Linux.hpp"
-    #define DesktopInfoinstance() LibOS::Desktop::Linux::getInstance();
+    #define DesktopInfoinstance() Desktop::Linux::getInstance();
 
 //
 // #include "../../../src/mouse/Linux.hpp"
@@ -23,3 +25,7 @@
 #define MouseControleInstance() nullptr
 #define KeyboadControleInstance() nullptr
 #endif
+
+namespace LibOS {
+    std::optional<Desktop::WindowInfo> LIBOS_API GetActiveWindow();
+}

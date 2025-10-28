@@ -4,7 +4,7 @@ using namespace LibOS::Desktop;
 
 #if PLATFORM_WINDOWS
 
-WindowInfo Windows::GetActiveWindow() {
+std::optional<WindowInfo> Windows::GetActiveWindow() {
     return Base::GetActiveWindow();
 }
 

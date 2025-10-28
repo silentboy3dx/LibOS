@@ -6,16 +6,16 @@ set(CMAKE_CXX_STANDARD 20)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 add_library(${PROJECT_NAME} STATIC
-        include/LibOS/LibOS.h
+        include/LibOS/LibOS.hpp
         include/LibOS/desktop/Linux.hpp
         include/LibOS/desktop/Base.hpp
         include/LibOS/desktop/Windows.hpp
+        include/LibOS/desktop/WindowInfo.hpp
 
         src/LibOS/desktop/Linux.cpp
         src/LibOS/desktop/Windows.cpp
         src/LibOS/desktop/Base.cpp
-        src/LibOS/library.cpp
-        include/LibOS/desktop/WindowInfo.hpp
+        src/library.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

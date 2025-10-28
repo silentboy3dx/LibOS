@@ -5,6 +5,6 @@ namespace LibOS::Desktop {
     class Windows : public Base {
     public:
         virtual ~Windows() = default;
-        WindowInfo GetActiveWindow() override;
+        std::optional<WindowInfo> GetActiveWindow() override;
     };
 }
