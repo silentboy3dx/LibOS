@@ -1,6 +1,5 @@
 name: Build
 
-
 on:
   push:
   pull_request:
@@ -16,12 +15,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential pkg-config
-
-      - name: Install X11 and OpenCV development libraries
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libx11-dev libxrandr-dev
+          sudo apt-get install -y cmake build-essential pkg-config  libx11-dev libxrandr-dev
 
       - name: Install CMake
         run: |
