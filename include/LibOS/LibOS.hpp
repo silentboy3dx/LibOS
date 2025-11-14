@@ -1,8 +1,9 @@
 #pragma once
 
 #include "LibOS/desktop/Base.hpp"
+#include "LibOS/system/Base.hpp"
 #include "LibOS/internals/export.hpp"
-#include "LibOS/LibOS.hpp"
+
 
 #if PLATFORM_WINDOWS
 // #   pragma message("✅ WINDOWS")
