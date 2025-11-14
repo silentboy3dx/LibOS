@@ -6,4 +6,8 @@ namespace LibOS::Desktop {
         WindowInfo result = WindowInfo();
         return result;
     }
+
+    Resolution Base::GetResolution() {
+        return Resolution{0, 0};
+    }
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include "LibOS/desktop/Base.hpp"
-#include "../system/SystemInfo.hpp"
 
 #include <optional>
 
@@ -11,6 +10,8 @@ namespace LibOS::Desktop {
         static Linux &getInstance();
 
         std::optional<WindowInfo> GetActiveWindow() override;
+
+        Resolution GetResolution() override;
 
     private:
         Linux() = default;

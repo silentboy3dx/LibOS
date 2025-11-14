@@ -28,6 +28,16 @@ namespace LibOS::Desktop {
 
         return std::nullopt;
     }
+
+    Resolution Windows::GetResolution() {
+        Resolution res{};
+
+        // Win32 API: GetSystemMetrics geeft schermdimensies
+        res.width  = ::GetSystemMetrics(SM_CXSCREEN);
+        res.height = ::GetSystemMetrics(SM_CYSCREEN);
+
+        return res;
+    }
 }
 
 #endif

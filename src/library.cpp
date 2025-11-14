@@ -8,7 +8,12 @@ namespace LibOS {
         return result.GetActiveWindow();
     }
 
-    System::SystemInfo GetSystemInfo() {
+    Resolution GetResolution() {
+        auto result = DesktopInfoinstance()
+        return result.GetResolution();
+    }
+
+    SystemInfo GetSystemInfo() {
         auto result = SystemInfoinstance()
         return result.GetSystemInfo();
     }

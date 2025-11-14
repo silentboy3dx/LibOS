@@ -32,5 +32,6 @@ using namespace LibOS::System;
 
 namespace LibOS {
     std::optional<WindowInfo> GetActiveWindow();
+    Resolution GetScreenResolution();
     SystemInfo GetSystemInfo();
 }

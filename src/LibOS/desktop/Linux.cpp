@@ -4,6 +4,7 @@
 #if PLATFORM_LINUX
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/Xrandr.h>
 #include <string>
 #include <cstring>
 #include <iostream>
@@ -13,8 +14,7 @@
 using namespace LibOS::Desktop;
 
 namespace LibOS::Desktop {
-
-    Linux& Linux::getInstance() {
+    Linux &Linux::getInstance() {
         static Linux instance;
         return instance;
     }
@@ -40,9 +40,8 @@ namespace LibOS::Desktop {
                 // Get the window title using XGetWMName
                 XTextProperty textProperty;
                 if (XGetWMName(display, focusedWindow, &textProperty) && textProperty.value) {
-
                     auto info = WindowInfo();
-                    info.title = strdup(reinterpret_cast<char*>(textProperty.value));
+                    info.title = strdup(reinterpret_cast<char *>(textProperty.value));
 
                     XFree(textProperty.value);
                     result = info;
@@ -54,6 +53,46 @@ namespace LibOS::Desktop {
 
         XCloseDisplay(display);
         return result;
+    }
+
+    Resolution Linux::GetResolution() {
+        Display *display = XOpenDisplay(nullptr);
+        if (!display) {
+            throw std::runtime_error("Failed to open X11 display");
+        }
+
+        int screen = DefaultScreen(display);
+        Window root = RootWindow(display, screen);
+
+        XRRScreenResources *resources = XRRGetScreenResources(display, root);
+        if (!resources) {
+            XCloseDisplay(display);
+            throw std::runtime_error("Failed to get screen resources");
+        }
+
+        XRRCrtcInfo *crtcInfo = nullptr;
+        Resolution resolution{0,0};
+
+        if (resources->ncrtc > 0) {
+            RRCrtc crtc = resources->crtcs[0];
+            crtcInfo = XRRGetCrtcInfo(display, resources, crtc);
+            if (!crtcInfo) {
+                XRRFreeScreenResources(resources);
+                XCloseDisplay(display);
+                throw std::runtime_error("Failed to get CRTC info");
+            }
+
+            resolution = Resolution{static_cast<int>(crtcInfo->width), static_cast<int>(crtcInfo->height)};
+            XRRFreeCrtcInfo(crtcInfo);
+        } else {
+            XRRFreeScreenResources(resources);
+            XCloseDisplay(display);
+            throw std::runtime_error("No CRTCs found");
+        }
+
+        XRRFreeScreenResources(resources);
+        XCloseDisplay(display);
+        return resolution;
     }
 }
 #endif
