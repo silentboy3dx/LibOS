@@ -7,14 +7,24 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 add_library(${PROJECT_NAME} STATIC
         include/LibOS/LibOS.hpp
+
         include/LibOS/desktop/Linux.hpp
         include/LibOS/desktop/Base.hpp
         include/LibOS/desktop/Windows.hpp
         include/LibOS/desktop/WindowInfo.hpp
 
+        include/LibOS/system/Linux.hpp
+        include/LibOS/system/Base.hpp
+        include/LibOS/system/Windows.hpp
+        include/LibOS/system/SystemInfo.hpp
+
         src/LibOS/desktop/Linux.cpp
         src/LibOS/desktop/Windows.cpp
         src/LibOS/desktop/Base.cpp
+
+        src/LibOS/system/Windows.cpp
+        src/LibOS/system/Linux.cpp
+
         src/library.cpp
 )
 

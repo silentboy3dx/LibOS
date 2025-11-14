@@ -10,6 +10,7 @@ namespace LibOS::Desktop {
     public:
         ~Windows() override = default;
         static Windows &getInstance();
+
         std::optional<WindowInfo> GetActiveWindow() override;
 
     private:

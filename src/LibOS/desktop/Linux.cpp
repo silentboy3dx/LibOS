@@ -1,5 +1,5 @@
 #include "LibOS/desktop/Linux.hpp"
-
+#include "../../../include/LibOS/system/SystemInfo.hpp"
 
 #if PLATFORM_LINUX
 #include <X11/Xlib.h>
@@ -8,6 +8,7 @@
 #include <cstring>
 #include <iostream>
 #include <optional>
+#include <sys/utsname.h>
 
 using namespace LibOS::Desktop;
 

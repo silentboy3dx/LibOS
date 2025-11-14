@@ -2,6 +2,7 @@
 #include <optional>
 
 #include "WindowInfo.hpp"
+#include "../system/SystemInfo.hpp"
 
 namespace LibOS::Desktop {
     class Base {

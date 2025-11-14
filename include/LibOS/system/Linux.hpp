@@ -1,16 +1,15 @@
 #pragma once
-#include "LibOS/desktop/Base.hpp"
-#include "../system/SystemInfo.hpp"
+#include "LibOS/system/Base.hpp"
+#include "LibOS/system/SystemInfo.hpp"
 
-#include <optional>
 
-namespace LibOS::Desktop {
+namespace LibOS::System {
     class Linux : public Base {
     public:
         ~Linux() override = default;
         static Linux &getInstance();
 
-        std::optional<WindowInfo> GetActiveWindow() override;
+        SystemInfo GetSystemInfo() override;
 
     private:
         Linux() = default;
