@@ -1,5 +1,4 @@
 #include "LibOS/system/Linux.hpp"
-#include "LibOS/system/SystemInfo.hpp"
 
 #if PLATFORM_LINUX
 #include <sys/utsname.h>

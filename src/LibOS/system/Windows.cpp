@@ -1,9 +1,6 @@
 #include "LibOS/system/Linux.hpp"
-#include "LibOS/system/SystemInfo.hpp"
 
 #if PLATFORM_WINDOWS
-
-using namespace LibOS::System;
 
 namespace LibOS::System {
 

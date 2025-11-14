@@ -15,7 +15,6 @@ add_library(${PROJECT_NAME} STATIC
         include/LibOS/system/Linux.hpp
         include/LibOS/system/Base.hpp
         include/LibOS/system/Windows.hpp
-        include/LibOS/system/SystemInfo.hpp
 
         src/LibOS/desktop/Linux.cpp
         src/LibOS/desktop/Windows.cpp

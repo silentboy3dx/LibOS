@@ -3,6 +3,6 @@
 
 namespace LibOS::System {
     SystemInfo Base::GetSystemInfo() {
-        return SystemInfo();
+        return {};
     }
 }

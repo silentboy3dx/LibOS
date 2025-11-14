@@ -1,5 +1,4 @@
 #include "LibOS/desktop/Linux.hpp"
-#include "../../../include/LibOS/system/SystemInfo.hpp"
 
 #if PLATFORM_LINUX
 #include <X11/Xlib.h>
