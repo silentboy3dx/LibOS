@@ -54,7 +54,7 @@ namespace LibOS::Desktop {
         return result;
     }
 
-    Resolution Linux::GetResolution() {
+    Resolution Linux::GetScreenResolution() {
         Display *display = XOpenDisplay(nullptr);
         if (!display) {
             throw std::runtime_error("Failed to open X11 display");

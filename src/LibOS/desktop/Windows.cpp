@@ -29,7 +29,7 @@ namespace LibOS::Desktop {
         return std::nullopt;
     }
 
-    Resolution Windows::GetResolution() {
+    Resolution Windows::GetScreenResolution() {
         Resolution res{};
 
         // Win32 API: GetSystemMetrics geeft schermdimensies

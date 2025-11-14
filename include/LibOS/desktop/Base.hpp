@@ -19,6 +19,6 @@ namespace LibOS::Desktop {
     public:
         virtual ~Base() = default;
         virtual std::optional<WindowInfo> GetActiveWindow();
-        virtual Resolution GetResolution();
+        virtual Resolution GetScreenResolution();
     };
 }

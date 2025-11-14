@@ -7,7 +7,7 @@ namespace LibOS::Desktop {
         return result;
     }
 
-    Resolution Base::GetResolution() {
+    Resolution Base::GetScreenResolution() {
         return Resolution{0, 0};
     }
 }

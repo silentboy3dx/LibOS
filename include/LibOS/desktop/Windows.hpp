@@ -13,7 +13,7 @@ namespace LibOS::Desktop {
 
         std::optional<WindowInfo> GetActiveWindow() override;
 
-        Resolution GetResolution() override;
+        Resolution GetScreenResolution() override;
 
     private:
         Windows() = default;
