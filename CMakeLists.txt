@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 4.0)
 project(LibOS)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -40,6 +39,6 @@ elseif(UNIX)
     endif()
 endif()
 
-target_compile_definitions(LibOS PRIVATE LIBOS_EXPORTS)
+target_compile_definitions(LibOS PUBLIC LIBOS_EXPORTS)
 
 include(X11)
