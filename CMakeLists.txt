@@ -24,6 +24,7 @@ add_library(${PROJECT_NAME} STATIC
 
         src/LibOS/system/Windows.cpp
         src/LibOS/system/Linux.cpp
+        src/LibOS/system/Base.cpp
 
         src/library.cpp
 )

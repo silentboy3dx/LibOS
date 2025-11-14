@@ -28,7 +28,9 @@
 #endif
 
 using namespace LibOS::Desktop;
+using namespace LibOS::System;
 
 namespace LibOS {
     std::optional<WindowInfo> GetActiveWindow();
+    SystemInfo GetSystemInfo();
 }
