@@ -1,0 +1,3 @@
+@PACKAGE_INIT@
+
+kinclude("${CMAKE_CURRENT_LIST_DIR}/LibOSTargets.cmake")
