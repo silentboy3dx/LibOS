@@ -79,7 +79,7 @@ endif()
 
 target_compile_definitions(LibOS PUBLIC LIBOS_EXPORTS)
 
-if (USE_X11)
+if (X11_PLATFORM)
     include(X11)
 endif()
 
@@ -97,7 +97,7 @@ install(DIRECTORY include/public/LibOS
 )
 
 # Install library
-install(TARGETS LibOS
+install(TARGETS LibOS nlohmann_json
         EXPORT LibOSTargets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
