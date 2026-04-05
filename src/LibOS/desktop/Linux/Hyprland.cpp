@@ -4,7 +4,9 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <cstring>
+#include <iostream>
 #include <optional>
+#include <ostream>
 #include <wayland-client.h>
 
 using namespace LibOS::Desktop;
@@ -73,13 +75,16 @@ std::optional<WindowInfo> Hyprland::GetActiveWindow() {
     std::string socketPath = std::string(runtime) + "/hypr/" + sig + "/.socket2.sock";
 
     int sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock < 0) return std::nullopt;
-
+    if (sock < 0) {
+        std::cerr << "Failed to create socket" << std::endl;
+        return std::nullopt;
+    }
     sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, socketPath.c_str());
 
     if (connect(sock, (sockaddr*)&addr, sizeof(addr)) < 0) {
+        std::cerr << "Failed to connect to socket" << std::endl;
         close(sock);
         return std::nullopt;
     }
@@ -94,6 +99,8 @@ std::optional<WindowInfo> Hyprland::GetActiveWindow() {
     if (len <= 0) return std::nullopt;
 
     auto json = nlohmann::json::parse(std::string(buffer, len));
+
+    std::cout << "json: " << json << std::endl;
 
     WindowInfo info;
     info.title = json.value("title", "");
