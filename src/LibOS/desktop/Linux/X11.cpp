@@ -7,7 +7,6 @@
 #include <cstring>
 #include <iostream>
 #include <optional>
-#include <sys/utsname.h>
 
 namespace LibOS::Desktop {
     Base &X11::getInstance() {

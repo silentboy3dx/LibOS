@@ -6,8 +6,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-set(X11_PLATFORM ON CACHE BOOL "Enable X11 backend" FORCE)
-
 if(NOT (WINDOWS_PLATFORM OR X11_PLATFORM OR HYPRLAND_PLATFORM))
     set(HYPRLAND_PLATFORM ON CACHE BOOL "Enable hyprland backend" FORCE)
 endif()
@@ -81,7 +79,11 @@ endif()
 
 target_compile_definitions(LibOS PUBLIC LIBOS_EXPORTS)
 
-include(X11)
+if (USE_X11)
+    include(X11)
+endif()
+
+include(Json)
 
 # ============================================================
 # Install rules

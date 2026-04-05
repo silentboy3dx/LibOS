@@ -9,36 +9,6 @@
 
 using namespace LibOS::Desktop;
 
-static std::optional<std::string> hyprland_ipc_send(const std::string& command) {
-    const char* sig = getenv("HYPRLAND_INSTANCE_SIGNATURE");
-    const char* runtime = getenv("XDG_RUNTIME_DIR");
-    if (!sig || !runtime) return std::nullopt;
-
-    std::string socketPath = std::string(runtime) + "/hypr/" + sig + "/.socket2.sock";
-
-    int sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock < 0) return std::nullopt;
-
-    sockaddr_un addr{};
-    addr.sun_family = AF_UNIX;
-    strcpy(addr.sun_path, socketPath.c_str());
-
-    if (connect(sock, (sockaddr*)&addr, sizeof(addr)) < 0) {
-        close(sock);
-        return std::nullopt;
-    }
-
-    write(sock, command.c_str(), command.size());
-
-    char buffer[8192];
-    int len = read(sock, buffer, sizeof(buffer));
-    close(sock);
-
-    if (len <= 0) return std::nullopt;
-
-    return std::string(buffer, len);
-}
-
 struct WLData {
     wl_output* output = nullptr;
     int width = 0;
@@ -63,7 +33,7 @@ static const wl_output_listener outputListener = {
     wl_scale
 };
 
-static std::optional<Resolution> get_wayland_resolution() {
+std::optional<Resolution> get_wayland_resolution() {
     wl_display* display = wl_display_connect(nullptr);
     if (!display) return std::nullopt;
 
@@ -89,30 +59,46 @@ static std::optional<Resolution> get_wayland_resolution() {
     return Resolution{data.width, data.height};
 }
 
+
 Base& Hyprland::getInstance() {
     static Hyprland instance;
     return instance;
 }
 
 std::optional<WindowInfo> Hyprland::GetActiveWindow() {
-    auto response = hyprland_ipc_send("activewindow");
-    if (!response) return std::nullopt;
+    const char* sig = getenv("HYPRLAND_INSTANCE_SIGNATURE");
+    const char* runtime = getenv("XDG_RUNTIME_DIR");
+    if (!sig || !runtime) return std::nullopt;
 
-    try {
-        auto json = nlohmann::json::parse(*response);
+    std::string socketPath = std::string(runtime) + "/hypr/" + sig + "/.socket2.sock";
 
-        WindowInfo info;
-        info.title = json.value("title", "");
-        info.x = json.value("x", 0);
-        info.y = json.value("y", 0);
-        info.width = json.value("width", 0);
-        info.height = json.value("height", 0);
+    int sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (sock < 0) return std::nullopt;
 
-        return info;
-    }
-    catch (...) {
+    sockaddr_un addr{};
+    addr.sun_family = AF_UNIX;
+    strcpy(addr.sun_path, socketPath.c_str());
+
+    if (connect(sock, (sockaddr*)&addr, sizeof(addr)) < 0) {
+        close(sock);
         return std::nullopt;
     }
+
+    const char* cmd = "activewindow";
+    write(sock, cmd, strlen(cmd));
+
+    char buffer[8192];
+    int len = read(sock, buffer, sizeof(buffer));
+    close(sock);
+
+    if (len <= 0) return std::nullopt;
+
+    auto json = nlohmann::json::parse(std::string(buffer, len));
+
+    WindowInfo info;
+    info.title = json.value("title", "");
+
+    return info.title.empty() ? std::nullopt : std::optional(info);
 }
 
 Resolution Hyprland::GetScreenResolution() {
