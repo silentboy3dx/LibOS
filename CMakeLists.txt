@@ -53,12 +53,23 @@ endif()
 
 if (HYPRLAND_PLATFORM)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_HYPRLAND)
+
     target_sources(${PROJECT_NAME} PRIVATE
             include/private/LibOS/desktop/Linux/Hyprland.h
             src/LibOS/desktop/Linux/Hyprland.cpp
     )
-    include(Windows OPTIONAL)
+
+    include(HyprlandProtocols)
+
+    target_sources(${PROJECT_NAME} PRIVATE
+            ${HYPRLAND_PROTOCOL_SOURCES}
+    )
+
+    target_include_directories(${PROJECT_NAME} PRIVATE
+            ${CMAKE_CURRENT_BINARY_DIR}/generated
+    )
 endif()
+
 
 
 target_include_directories(LibOS
