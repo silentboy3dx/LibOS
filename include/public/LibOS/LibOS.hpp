@@ -5,26 +5,19 @@
 #include "LibOS/internals/export.hpp"
 
 
-#if PLATFORM_WINDOWS
+#if USE_WINDOWS
 // #   pragma message("✅ WINDOWS")
     #include "desktop/Windows.hpp"
     #include "system/Windows.hpp"
     #define DesktopInfoinstance() Desktop::Windows::getInstance();
     #define SystemInfoinstance() System::Windows::getInstance();
 
-#elif PLATFORM_LINUX
+#else
 
     #include "desktop/Linux.hpp"
     #include "system/Linux.hpp"
     #define DesktopInfoinstance() Desktop::Linux::getInstance();
     #define SystemInfoinstance() System::Linux::getInstance();
-
-
-#else
-
-// #   pragma message("✅ OOPS")
-#define DesktopInfoinstance() nullptr
-#define SystemInfoinstance() nullptr
 
 #endif
 

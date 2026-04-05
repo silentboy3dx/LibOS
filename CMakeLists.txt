@@ -6,31 +6,69 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+set(X11_PLATFORM ON CACHE BOOL "Enable X11 backend" FORCE)
+
+if(NOT (WINDOWS_PLATFORM OR X11_PLATFORM OR HYPRLAND_PLATFORM))
+    set(HYPRLAND_PLATFORM ON CACHE BOOL "Enable hyprland backend" FORCE)
+endif()
+
 add_library(LibOS STATIC
-        include/LibOS/LibOS.hpp
+        include/public/LibOS/LibOS.hpp
 
-        include/LibOS/desktop/Linux.hpp
-        include/LibOS/desktop/Base.hpp
-        include/LibOS/desktop/Windows.hpp
+        include/public/LibOS/desktop/Linux.hpp
+        include/public/LibOS/desktop/Base.hpp
+        include/public/LibOS/desktop/Windows.hpp
 
-        include/LibOS/system/Linux.hpp
-        include/LibOS/system/Base.hpp
-        include/LibOS/system/Windows.hpp
+        include/public/LibOS/system/Linux.hpp
+        include/public/LibOS/system/Base.hpp
+        include/public/LibOS/system/Windows.hpp
 
         src/LibOS/desktop/Linux.cpp
         src/LibOS/desktop/Windows.cpp
         src/LibOS/desktop/Base.cpp
 
-        src/LibOS/system/Windows.cpp
+
         src/LibOS/system/Linux.cpp
         src/LibOS/system/Base.cpp
 
         src/library.cpp
 )
 
-target_include_directories(LibOS PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+
+if (WINDOWS_PLATFORM)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_WINDOWS)
+    target_sources(${PROJECT_NAME} PRIVATE
+            include/public/LibOS/desktop/Windows.hpp
+            src/LibOS/system/Windows.cpp
+    )
+    include(Windows OPTIONAL)
+endif()
+
+if (X11_PLATFORM)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_X11)
+    target_sources(${PROJECT_NAME} PRIVATE
+            include/private/LibOS/desktop/Linux/X11.h
+            src/LibOS/desktop/Linux/X11.cpp
+    )
+    include(Windows OPTIONAL)
+endif()
+
+if (HYPRLAND_PLATFORM)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_HYPRLAND)
+    target_sources(${PROJECT_NAME} PRIVATE
+            include/private/LibOS/desktop/Linux/Hyprland.h
+            src/LibOS/desktop/Linux/Hyprland.cpp
+    )
+    include(Windows OPTIONAL)
+endif()
+
+
+target_include_directories(LibOS
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/public>
         $<INSTALL_INTERFACE:include>
+        PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/private>
 )
 
 if(WIN32)
@@ -52,7 +90,7 @@ include(X11)
 include(GNUInstallDirs)
 
 # Install headers
-install(DIRECTORY include/LibOS
+install(DIRECTORY include/public/LibOS
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 

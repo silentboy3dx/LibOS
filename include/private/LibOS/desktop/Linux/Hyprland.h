@@ -1,19 +1,20 @@
 #pragma once
+
 #include "LibOS/desktop/Base.hpp"
 
 #include <optional>
 
 namespace LibOS::Desktop {
-    class Linux : public Base {
+    class Hyprland : public Base {
     public:
-        ~Linux() override = default;
-        static Linux &getInstance();
+        ~Hyprland() override = default;
+        static Base &getInstance();
 
         std::optional<WindowInfo> GetActiveWindow() override;
 
         Resolution GetScreenResolution() override;
 
     private:
-        Linux() = default;
+        Hyprland() = default;
     };
 }
