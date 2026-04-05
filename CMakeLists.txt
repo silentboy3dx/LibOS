@@ -97,7 +97,8 @@ install(DIRECTORY include/public/LibOS
 )
 
 # Install library
-install(TARGETS LibOS nlohmann_json
+install(TARGETS
+        LibOS
         EXPORT LibOSTargets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
