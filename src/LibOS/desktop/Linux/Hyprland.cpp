@@ -181,6 +181,8 @@ static std::optional<Resolution> hyprland_ipc_resolution() {
 
     auto json = nlohmann::json::parse(std::string(buffer, len));
 
+    std::cout << json << std::endl;
+
     if (!json.is_array() || json.empty()) return std::nullopt;
 
     int w = json[0].value("width", 0);
