@@ -6,18 +6,17 @@
 
 
 #if USE_WINDOWS
-// #   pragma message("✅ WINDOWS")
     #include "desktop/Windows.hpp"
     #include "system/Windows.hpp"
-    #define DesktopInfoinstance() Desktop::Windows::getInstance();
-    #define SystemInfoinstance() System::Windows::getInstance();
+    #define DesktopInfoinstance() Desktop::Windows::getInstance()
+    #define SystemInfoinstance() System::Windows::getInstance()
 
 #else
 
     #include "desktop/Linux.hpp"
     #include "system/Linux.hpp"
-    #define DesktopInfoinstance() Desktop::Linux::getInstance();
-    #define SystemInfoinstance() System::Linux::getInstance();
+    #define DesktopInfoinstance() Desktop::Linux::getInstance()
+    #define SystemInfoinstance() System::Linux::getInstance()
 
 #endif
 
