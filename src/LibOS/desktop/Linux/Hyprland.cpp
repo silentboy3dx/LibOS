@@ -158,14 +158,20 @@ static std::optional<Resolution> hyprland_ipc_resolution() {
 
     std::string socketPath = std::string(runtime) + "/hypr/" + sig + "/.socket2.sock";
 
+    std::cout << "Trying to connect to " << socketPath << std::endl;
+
     int sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock < 0) return std::nullopt;
+    if (sock < 0) {
+        std::cerr << "Could not create socket" << std::endl;
+        return std::nullopt;
+    }
 
     sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, socketPath.c_str());
 
     if (connect(sock, (sockaddr*)&addr, sizeof(addr)) < 0) {
+        std::cerr << "Could not connect to socket" << std::endl;
         close(sock);
         return std::nullopt;
     }
@@ -238,5 +244,6 @@ std::optional<WindowInfo> Hyprland::GetActiveWindow() {
 Resolution Hyprland::GetScreenResolution() {
     if (auto r = get_wlr_resolution()) return *r;
     if (auto r = hyprland_ipc_resolution()) return *r;
+    std::cerr << "Could not determine screen resolution" << std::endl;
     return Resolution{0, 0};
 }
