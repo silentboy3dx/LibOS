@@ -85,8 +85,13 @@ static void head_current_mode(void* data, zwlr_output_head_v1*, zwlr_output_mode
 static void head_position(void*, zwlr_output_head_v1*, int32_t, int32_t) {}
 static void head_transform(void*, zwlr_output_head_v1*, int32_t) {}
 static void head_scale(void*, zwlr_output_head_v1*, wl_fixed_t) {}
+
+// 🔧 Nieuw: done‑callback toevoegen
+static void head_done(void*, zwlr_output_head_v1*) {}
+
 static void head_finished(void*, zwlr_output_head_v1*) {}
 
+// Let op: volgorde moet exact overeenkomen met het protocol
 static const zwlr_output_head_v1_listener headListener = {
     head_name,
     head_description,
@@ -97,6 +102,7 @@ static const zwlr_output_head_v1_listener headListener = {
     head_position,
     head_transform,
     head_scale,
+    head_done,
     head_finished
 };
 
@@ -211,7 +217,6 @@ static std::optional<Resolution> get_wlr_resolution() {
     wl_registry* registry = wl_display_get_registry(display);
     wl_registry_add_listener(registry, &registryListener, &data);
 
-    // Wait for all events
     while (!data.done) {
         wl_display_roundtrip(display);
     }
@@ -239,7 +244,7 @@ Base& Hyprland::getInstance() {
 }
 
 std::optional<WindowInfo> Hyprland::GetActiveWindow() {
-    // unchanged from your version
+    // unchanged for now
     return std::nullopt;
 }
 
