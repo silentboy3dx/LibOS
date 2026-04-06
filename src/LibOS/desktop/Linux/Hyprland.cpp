@@ -42,7 +42,7 @@ namespace {
 
 namespace LibOS::Desktop {
 
-    Hyprland& Hyprland::getInstance() {
+    Base& Hyprland::getInstance() {
         static Hyprland instance;
         return instance;
     }
