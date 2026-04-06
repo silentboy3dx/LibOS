@@ -29,6 +29,7 @@ add_library(LibOS STATIC
 
 
         src/LibOS/system/Linux.cpp
+        src/LibOS/system/Base.cpp
 
         src/library.cpp
 )
