@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include <nlohmann/json.hpp>
-#include "Hyprland.h"
+#include "LibOS/desktop/Linux/Hyprland.h"
 
 using json = nlohmann::json;
 
