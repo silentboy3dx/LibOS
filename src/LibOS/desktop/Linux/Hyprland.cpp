@@ -218,6 +218,8 @@ static std::optional<Resolution> get_wlr_resolution() {
 
     wl_display_disconnect(display);
 
+    std::cout << "Got " << data.heads.size() << " heads" << std::endl;
+
     for (auto* h : data.heads) {
         if (h->enabled && h->mode.width > 0) {
             return Resolution{h->mode.width, h->mode.height};
