@@ -30,10 +30,13 @@ namespace {
         }
 
         int rc = pclose(pipe);
-        if (rc != 0 || output.empty())
+        if (rc != 0 || output.empty()) {
+            std::cerr << "Failed to run hyprctl" << std::endl;
             return std::nullopt;
+        }
 
         try {
+            std::cout << output << std::endl;
             return json::parse(output);
         } catch (...) {
             return std::nullopt;
