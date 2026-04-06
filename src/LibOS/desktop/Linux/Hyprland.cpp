@@ -244,6 +244,7 @@ std::optional<WindowInfo> Hyprland::GetActiveWindow() {
 }
 
 Resolution Hyprland::GetScreenResolution() {
+    std::cerr << "Trying to get screen resolution" << std::endl;
     if (auto r = get_wlr_resolution()) return *r;
     if (auto r = hyprland_ipc_resolution()) return *r;
     std::cerr << "Could not determine screen resolution" << std::endl;
