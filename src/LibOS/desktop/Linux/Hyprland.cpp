@@ -7,6 +7,8 @@
 #include <nlohmann/json.hpp>
 #include "LibOS/desktop/Linux/Hyprland.h"
 
+#include <iostream>
+
 using json = nlohmann::json;
 
 namespace {
@@ -64,8 +66,11 @@ namespace LibOS::Desktop {
 
     std::optional<WindowInfo> Hyprland::GetActiveWindow() {
         auto j = runHyprctlJson("activewindow");
-        if (!j || !j->is_object())
+
+        if (!j || !j->is_object()) {
+            std::cerr << "Failed to get active window json" << std::endl;
             return std::nullopt;
+        }
 
         WindowInfo info;
 
