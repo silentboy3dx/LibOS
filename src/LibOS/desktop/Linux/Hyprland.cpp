@@ -40,8 +40,11 @@ static std::optional<nlohmann::json> hyprland_ipc(const std::string& command) {
 
     write(sock, command.c_str(), command.size());
 
+
     char buffer[8192];
     int len = read(sock, buffer, sizeof(buffer));
+
+    std::cout << "[Hyprland] IPC response: " << std::string(buffer, len) << std::endl;
     close(sock);
 
     if (len <= 0) {
