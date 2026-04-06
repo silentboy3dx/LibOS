@@ -1,5 +1,8 @@
 #include "LibOS/desktop/Base.hpp"
 
+#include <iostream>
+#include <ostream>
+
 
 namespace LibOS::Desktop {
     std::optional<WindowInfo> Base::GetActiveWindow() {
@@ -8,6 +11,7 @@ namespace LibOS::Desktop {
     }
 
     Resolution Base::GetScreenResolution() {
+        std::cerr << "GetScreenResolution not implemented" << std::endl;
         return Resolution{0, 0};
     }
 }

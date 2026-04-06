@@ -4,6 +4,8 @@
 #include <iostream>
 #include <optional>
 
+#include "LibOS/desktop/Linux/Hyprland.h"
+
 
 #if USE_X11
 #include "LibOS/desktop/Linux/X11.h"
@@ -20,6 +22,7 @@ namespace LibOS::Desktop {
 #if USE_X11
         return X11::getInstance();
 #elif USE_HYPRLAND
+        std::cout << "Hyprland backend selected!" << std::endl;
         return Hyprland::getInstance();
 #else
 #   error "No Linux backend selected! Define USE_X11, USE_HYPRLAND or USE_WAYLAND."
