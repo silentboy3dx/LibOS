@@ -2,8 +2,6 @@
 
 #include "LibOS/desktop/Base.hpp"
 #include "LibOS/system/Base.hpp"
-#include "LibOS/internals/export.hpp"
-
 
 #if USE_WINDOWS
     #include "desktop/Windows.hpp"
