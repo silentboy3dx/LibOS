@@ -11,6 +11,7 @@
 #include <cstring>
 #include <iostream>
 #include <optional>
+#include <vector>
 
 using namespace LibOS::Desktop;
 
@@ -58,7 +59,7 @@ static const zwlr_output_mode_v1_listener modeListener = {
 };
 
 // ------------------------------------------------------------
-// Head listener
+// Head listener (correct order)
 // ------------------------------------------------------------
 
 static void head_name(void*, zwlr_output_head_v1*, const char*) {}
@@ -86,12 +87,13 @@ static void head_position(void*, zwlr_output_head_v1*, int32_t, int32_t) {}
 static void head_transform(void*, zwlr_output_head_v1*, int32_t) {}
 static void head_scale(void*, zwlr_output_head_v1*, wl_fixed_t) {}
 
-// 🔧 Nieuw: done‑callback toevoegen
-static void head_done(void*, zwlr_output_head_v1*) {}
+static void head_done(void* data, zwlr_output_head_v1*) {
+    auto* head = static_cast<HeadInfo*>(data);
+    std::cerr << "[Hyprland] head_done for head " << head << std::endl;
+}
 
 static void head_finished(void*, zwlr_output_head_v1*) {}
 
-// Let op: volgorde moet exact overeenkomen met het protocol
 static const zwlr_output_head_v1_listener headListener = {
     head_name,
     head_description,
@@ -116,15 +118,19 @@ static void manager_head(void* data, zwlr_output_manager_v1*, zwlr_output_head_v
     h->head = head;
     d->heads.push_back(h);
 
+    std::cerr << "[Hyprland] New head registered: " << h << std::endl;
     zwlr_output_head_v1_add_listener(head, &headListener, h);
 }
 
 static void manager_done(void* data, zwlr_output_manager_v1*, uint32_t) {
     auto* d = static_cast<WLData*>(data);
     d->done = true;
+    std::cerr << "[Hyprland] Output manager done\n";
 }
 
-static void manager_finished(void*, zwlr_output_manager_v1*) {}
+static void manager_finished(void*, zwlr_output_manager_v1*) {
+    std::cerr << "[Hyprland] Output manager finished\n";
+}
 
 static const zwlr_output_manager_v1_listener managerListener = {
     manager_head,
@@ -141,6 +147,7 @@ static void registry_add(void* data, wl_registry* reg, uint32_t name, const char
 
     if (strcmp(iface, zwlr_output_manager_v1_interface.name) == 0) {
         uint32_t v = std::min(version, 2u);
+        std::cerr << "[Hyprland] Binding zwlr_output_manager_v1, version " << v << std::endl;
         d->manager = (zwlr_output_manager_v1*)wl_registry_bind(reg, name, &zwlr_output_manager_v1_interface, v);
         zwlr_output_manager_v1_add_listener(d->manager, &managerListener, d);
     }
@@ -154,13 +161,16 @@ static const wl_registry_listener registryListener = {
 };
 
 // ------------------------------------------------------------
-// Hyprland IPC fallback
+// Shared Hyprland IPC helper
 // ------------------------------------------------------------
 
-static std::optional<Resolution> hyprland_ipc_resolution() {
+static std::optional<nlohmann::json> hyprland_ipc(const std::string& command) {
     const char* sig = getenv("HYPRLAND_INSTANCE_SIGNATURE");
     const char* runtime = getenv("XDG_RUNTIME_DIR");
-    if (!sig || !runtime) return std::nullopt;
+    if (!sig || !runtime) {
+        std::cerr << "[Hyprland] HYPRLAND_INSTANCE_SIGNATURE or XDG_RUNTIME_DIR not set\n";
+        return std::nullopt;
+    }
 
     std::string socketPath = std::string(runtime) + "/hypr/" + sig + "/.socket2.sock";
 
@@ -182,23 +192,37 @@ static std::optional<Resolution> hyprland_ipc_resolution() {
         return std::nullopt;
     }
 
-    const char* cmd = "monitors";
-    write(sock, cmd, strlen(cmd));
+    write(sock, command.c_str(), command.size());
 
     char buffer[8192];
     int len = read(sock, buffer, sizeof(buffer));
     close(sock);
 
-    if (len <= 0) return std::nullopt;
+    if (len <= 0) {
+        std::cerr << "[Hyprland] Empty IPC response\n";
+        return std::nullopt;
+    }
 
-    auto json = nlohmann::json::parse(std::string(buffer, len));
+    auto json = nlohmann::json::parse(std::string(buffer, len), nullptr, false);
+    if (json.is_discarded()) {
+        std::cerr << "[Hyprland] JSON parse error\n";
+        return std::nullopt;
+    }
 
     std::cout << json << std::endl;
+    return json;
+}
 
-    if (!json.is_array() || json.empty()) return std::nullopt;
+// ------------------------------------------------------------
+// IPC: resolution
+// ------------------------------------------------------------
 
-    int w = json[0].value("width", 0);
-    int h = json[0].value("height", 0);
+static std::optional<Resolution> hyprland_ipc_resolution() {
+    auto json = hyprland_ipc("monitors");
+    if (!json || !json->is_array() || json->empty()) return std::nullopt;
+
+    int w = (*json)[0].value("width", 0);
+    int h = (*json)[0].value("height", 0);
 
     if (w == 0 || h == 0) return std::nullopt;
 
@@ -206,16 +230,59 @@ static std::optional<Resolution> hyprland_ipc_resolution() {
 }
 
 // ------------------------------------------------------------
-// Main resolution function
+// IPC: active window
+// ------------------------------------------------------------
+
+std::optional<WindowInfo> Hyprland::GetActiveWindow() {
+    std::cerr << "[Hyprland] Getting active window via IPC\n";
+
+    auto json = hyprland_ipc("activewindow");
+    if (!json || !json->is_object()) {
+        std::cerr << "[Hyprland] No active window\n";
+        return std::nullopt;
+    }
+
+    WindowInfo info{};
+
+    if (json->contains("title"))
+        info.title = (*json)["title"].get<std::string>();
+    if (json->contains("class"))
+        info.className = (*json)["class"].get<std::string>();
+
+    if (json->contains("at")) {
+        info.x = (*json)["at"].value("x", 0);
+        info.y = (*json)["at"].value("y", 0);
+    }
+
+    if (json->contains("size")) {
+        info.width  = (*json)["size"].value("w", 0);
+        info.height = (*json)["size"].value("h", 0);
+    }
+
+    std::cerr << "[Hyprland] Active window: " << info.title
+              << " (" << info.className << ") "
+              << info.width << "x" << info.height
+              << " at " << info.x << "," << info.y << std::endl;
+
+    return info;
+}
+
+// ------------------------------------------------------------
+// Wayland: resolution via wlr-output-management
 // ------------------------------------------------------------
 
 static std::optional<Resolution> get_wlr_resolution() {
     wl_display* display = wl_display_connect(nullptr);
-    if (!display) return std::nullopt;
+    if (!display) {
+        std::cerr << "[Hyprland] wl_display_connect failed\n";
+        return std::nullopt;
+    }
 
     WLData data{};
     wl_registry* registry = wl_display_get_registry(display);
     wl_registry_add_listener(registry, &registryListener, &data);
+
+    std::cerr << "Trying to get screen resolution" << std::endl;
 
     while (!data.done) {
         wl_display_roundtrip(display);
@@ -243,15 +310,12 @@ Base& Hyprland::getInstance() {
     return instance;
 }
 
-std::optional<WindowInfo> Hyprland::GetActiveWindow() {
-    // unchanged for now
-    return std::nullopt;
-}
-
 Resolution Hyprland::GetScreenResolution() {
     std::cerr << "Trying to get screen resolution" << std::endl;
+
     if (auto r = get_wlr_resolution()) return *r;
     if (auto r = hyprland_ipc_resolution()) return *r;
+
     std::cerr << "Could not determine screen resolution" << std::endl;
     return Resolution{0, 0};
 }
