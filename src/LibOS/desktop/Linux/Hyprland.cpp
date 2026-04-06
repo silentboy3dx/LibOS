@@ -15,10 +15,6 @@
 
 using namespace LibOS::Desktop;
 
-// ------------------------------------------------------------
-// Structs
-// ------------------------------------------------------------
-
 struct ModeInfo {
     int width = 0;
     int height = 0;
@@ -37,10 +33,6 @@ struct WLData {
     bool done = false;
 };
 
-// ------------------------------------------------------------
-// Mode listener
-// ------------------------------------------------------------
-
 static void mode_size(void* data, zwlr_output_mode_v1*, int32_t w, int32_t h) {
     auto* head = static_cast<HeadInfo*>(data);
     head->mode.width = w;
@@ -57,10 +49,6 @@ static const zwlr_output_mode_v1_listener modeListener = {
     mode_preferred,
     mode_finished
 };
-
-// ------------------------------------------------------------
-// Head listener (correct order)
-// ------------------------------------------------------------
 
 static void head_name(void*, zwlr_output_head_v1*, const char*) {}
 static void head_description(void*, zwlr_output_head_v1*, const char*) {}
@@ -108,10 +96,6 @@ static const zwlr_output_head_v1_listener headListener = {
     head_finished
 };
 
-// ------------------------------------------------------------
-// Manager listener
-// ------------------------------------------------------------
-
 static void manager_head(void* data, zwlr_output_manager_v1*, zwlr_output_head_v1* head) {
     auto* d = static_cast<WLData*>(data);
     auto* h = new HeadInfo{};
@@ -138,10 +122,6 @@ static const zwlr_output_manager_v1_listener managerListener = {
     manager_finished
 };
 
-// ------------------------------------------------------------
-// Registry listener
-// ------------------------------------------------------------
-
 static void registry_add(void* data, wl_registry* reg, uint32_t name, const char* iface, uint32_t version) {
     auto* d = static_cast<WLData*>(data);
 
@@ -159,10 +139,6 @@ static const wl_registry_listener registryListener = {
     registry_add,
     registry_remove
 };
-
-// ------------------------------------------------------------
-// Shared Hyprland IPC helper
-// ------------------------------------------------------------
 
 static std::optional<nlohmann::json> hyprland_ipc(const std::string& command) {
     const char* sig = getenv("HYPRLAND_INSTANCE_SIGNATURE");
@@ -213,10 +189,6 @@ static std::optional<nlohmann::json> hyprland_ipc(const std::string& command) {
     return json;
 }
 
-// ------------------------------------------------------------
-// IPC: resolution
-// ------------------------------------------------------------
-
 static std::optional<Resolution> hyprland_ipc_resolution() {
     auto json = hyprland_ipc("monitors");
     if (!json || !json->is_array() || json->empty()) return std::nullopt;
@@ -229,10 +201,6 @@ static std::optional<Resolution> hyprland_ipc_resolution() {
     return Resolution{w, h};
 }
 
-// ------------------------------------------------------------
-// IPC: active window
-// ------------------------------------------------------------
-
 std::optional<WindowInfo> Hyprland::GetActiveWindow() {
     std::cerr << "[Hyprland] Getting active window via IPC\n";
 
@@ -243,33 +211,12 @@ std::optional<WindowInfo> Hyprland::GetActiveWindow() {
     }
 
     WindowInfo info{};
+    info.title = (*json).value("title", "");
 
-    if (json->contains("title"))
-        info.title = (*json)["title"].get<std::string>();
-    if (json->contains("class"))
-        info.className = (*json)["class"].get<std::string>();
-
-    if (json->contains("at")) {
-        info.x = (*json)["at"].value("x", 0);
-        info.y = (*json)["at"].value("y", 0);
-    }
-
-    if (json->contains("size")) {
-        info.width  = (*json)["size"].value("w", 0);
-        info.height = (*json)["size"].value("h", 0);
-    }
-
-    std::cerr << "[Hyprland] Active window: " << info.title
-              << " (" << info.className << ") "
-              << info.width << "x" << info.height
-              << " at " << info.x << "," << info.y << std::endl;
+    std::cerr << "[Hyprland] Active window title: " << info.title << std::endl;
 
     return info;
 }
-
-// ------------------------------------------------------------
-// Wayland: resolution via wlr-output-management
-// ------------------------------------------------------------
 
 static std::optional<Resolution> get_wlr_resolution() {
     wl_display* display = wl_display_connect(nullptr);
@@ -300,10 +247,6 @@ static std::optional<Resolution> get_wlr_resolution() {
 
     return std::nullopt;
 }
-
-// ------------------------------------------------------------
-// Hyprland class
-// ------------------------------------------------------------
 
 Base& Hyprland::getInstance() {
     static Hyprland instance;
