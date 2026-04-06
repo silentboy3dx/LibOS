@@ -3,7 +3,6 @@
 #include <array>
 #include <string>
 #include <optional>
-#include <iostream>
 
 #include <nlohmann/json.hpp>
 #include "LibOS/desktop/Linux/Hyprland.h"
@@ -63,20 +62,19 @@ namespace LibOS::Desktop {
         };
     }
 
-    ActiveWindow Hyprland::GetActiveWindow() {
+    std::optional<WindowInfo> Hyprland::GetActiveWindow() {
         auto j = runHyprctlJson("activewindow");
         if (!j || !j->is_object())
-            return ActiveWindow{"", ""};
+            return std::nullopt;
 
-        std::string cls, title;
-
-        if (j->contains("class"))
-            cls = j->at("class").get<std::string>();
+        WindowInfo info;
 
         if (j->contains("title"))
-            title = j->at("title").get<std::string>();
+            info.title = j->at("title").get<std::string>();
+        else
+            info.title.clear();
 
-        return ActiveWindow{cls, title};
+        return info;
     }
 
-} // namespace LibOS::Desktop
+}
