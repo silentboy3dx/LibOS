@@ -1,8 +1,6 @@
 #pragma once
 
 #include "LibOS/system/Base.hpp"
-#include "LibOS/system/SystemInfo.hpp"
-
 
 namespace LibOS::System {
     class Windows : public Base {
