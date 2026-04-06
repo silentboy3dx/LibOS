@@ -1,105 +1,137 @@
-#include "LibOS/desktop/Linux/Hyprland.h"
+#include <cstdio>
+#include <cstdlib>
+#include <memory>
+#include <array>
+#include <string>
+#include <optional>
+#include <iostream>
 
 #include <nlohmann/json.hpp>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <unistd.h>
 
-#include <cstring>
-#include <iostream>
-#include <optional>
+using json = nlohmann::json;
 
-using namespace LibOS::Desktop;
+namespace LibOS {
 
-static std::optional<nlohmann::json> hyprland_ipc(const std::string& command) {
-    const char* sig = getenv("HYPRLAND_INSTANCE_SIGNATURE");
-    const char* runtime = getenv("XDG_RUNTIME_DIR");
-    if (!sig || !runtime) {
-        std::cerr << "[Hyprland] HYPRLAND_INSTANCE_SIGNATURE or XDG_RUNTIME_DIR not set\n";
+struct Resolution {
+    int width{};
+    int height{};
+};
+
+struct ActiveWindow {
+    std::string appClass;
+    std::string title;
+};
+
+class Hyprland {
+public:
+    static Resolution GetScreenResolution();
+    static ActiveWindow GetActiveWindow();
+
+private:
+    static std::optional<json> runHyprctlJson(const std::string& subcommand);
+};
+
+// ------------------------------------------------------------
+// Helper: run "hyprctl -j <subcommand>" and parse JSON
+// ------------------------------------------------------------
+
+std::optional<json> Hyprland::runHyprctlJson(const std::string& subcommand) {
+    std::string cmd = "hyprctl -j " + subcommand + " 2>/dev/null";
+
+    std::array<char, 4096> buffer{};
+    std::string output;
+
+    FILE* pipe = popen(cmd.c_str(), "r");
+    if (!pipe) {
+        std::cerr << "[Hyprland] Failed to run: " << cmd << "\n";
         return std::nullopt;
     }
 
-    std::string socketPath = std::string(runtime) + "/hypr/" + sig + "/.socket2.sock";
-    std::cout << "Trying to connect to " << socketPath << std::endl;
+    while (true) {
+        std::size_t n = fread(buffer.data(), 1, buffer.size(), pipe);
+        if (n == 0) break;
+        output.append(buffer.data(), n);
+    }
 
-    int sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock < 0) {
-        std::cerr << "Could not create socket\n";
+    int rc = pclose(pipe);
+    if (rc != 0 || output.empty()) {
+        std::cerr << "[Hyprland] hyprctl returned non‑zero or empty output for: "
+                  << subcommand << "\n";
         return std::nullopt;
     }
 
-    sockaddr_un addr{};
-    addr.sun_family = AF_UNIX;
-    strcpy(addr.sun_path, socketPath.c_str());
-
-    if (connect(sock, (sockaddr*)&addr, sizeof(addr)) < 0) {
-        std::cerr << "Could not connect to socket\n";
-        close(sock);
+    try {
+        return json::parse(output);
+    } catch (const std::exception& e) {
+        std::cerr << "[Hyprland] JSON parse error for '" << subcommand
+                  << "': " << e.what() << "\n";
         return std::nullopt;
     }
-
-    write(sock, command.c_str(), command.size());
-
-
-    char buffer[8192];
-    int len = read(sock, buffer, sizeof(buffer));
-
-    std::cout << "[Hyprland] IPC response: " << std::string(buffer, len) << std::endl;
-    close(sock);
-
-    if (len <= 0) {
-        std::cerr << "[Hyprland] Empty IPC response\n";
-        return std::nullopt;
-    }
-
-    auto json = nlohmann::json::parse(std::string(buffer, len), nullptr, false);
-    if (json.is_discarded()) {
-        std::cerr << "[Hyprland] JSON parse error\n";
-        return std::nullopt;
-    }
-
-    std::cout << json << std::endl;
-    return json;
 }
 
-static std::optional<Resolution> hyprland_ipc_resolution() {
-    auto json = hyprland_ipc("monitors");
-    if (!json || !json->is_array() || json->empty()) return std::nullopt;
+// ------------------------------------------------------------
+// Resolution via: hyprctl -j monitors
+// ------------------------------------------------------------
 
-    int w = (*json)[0].value("width", 0);
-    int h = (*json)[0].value("height", 0);
+Resolution Hyprland::GetScreenResolution() {
+    std::cerr << "[Hyprland] GetScreenResolution via hyprctl -j monitors\n";
 
-    if (w == 0 || h == 0) return std::nullopt;
+    auto j = runHyprctlJson("monitors");
+    if (!j || !j->is_array() || j->empty()) {
+        std::cerr << "[Hyprland] monitors JSON invalid or empty\n";
+        return Resolution{0, 0};
+    }
+
+    const auto& primary = (*j)[0];
+
+    if (!primary.contains("width") || !primary.contains("height")) {
+        std::cerr << "[Hyprland] monitors JSON missing width/height\n";
+        return Resolution{0, 0};
+    }
+
+    int w = 0;
+    int h = 0;
+
+    try {
+        w = primary.at("width").get<int>();
+        h = primary.at("height").get<int>();
+    } catch (const std::exception& e) {
+        std::cerr << "[Hyprland] monitors width/height parse error: "
+                  << e.what() << "\n";
+        return Resolution{0, 0};
+    }
 
     return Resolution{w, h};
 }
 
-std::optional<WindowInfo> Hyprland::GetActiveWindow() {
-    std::cerr << "[Hyprland] Getting active window via IPC\n";
+// ------------------------------------------------------------
+// Active window via: hyprctl -j activewindow
+// ------------------------------------------------------------
 
-    auto json = hyprland_ipc("activewindow");
-    if (!json || !json->is_object()) {
-        std::cerr << "[Hyprland] No active window\n";
-        return std::nullopt;
+ActiveWindow Hyprland::GetActiveWindow() {
+    std::cerr << "[Hyprland] GetActiveWindow via hyprctl -j activewindow\n";
+
+    auto j = runHyprctlJson("activewindow");
+    if (!j || !j->is_object()) {
+        std::cerr << "[Hyprland] activewindow JSON invalid\n";
+        return ActiveWindow{"", ""};
     }
 
-    WindowInfo info{};
-    info.title = (*json).value("title", "");
+    std::string cls;
+    std::string title;
 
-    std::cerr << "[Hyprland] Active window title: " << info.title << std::endl;
-    return info;
+    try {
+        if (j->contains("class"))
+            cls = j->at("class").get<std::string>();
+        if (j->contains("title"))
+            title = j->at("title").get<std::string>();
+    } catch (const std::exception& e) {
+        std::cerr << "[Hyprland] activewindow parse error: "
+                  << e.what() << "\n";
+        return ActiveWindow{"", ""};
+    }
+
+    return ActiveWindow{cls, title};
 }
 
-Base& Hyprland::getInstance() {
-    static Hyprland instance;
-    return instance;
-}
-
-Resolution Hyprland::GetScreenResolution() {
-    std::cerr << "Trying to get screen resolution\n";
-
-    if (auto r = hyprland_ipc_resolution()) return *r;
-
-    std::cerr << "Could not determine screen resolution\n";
-    return Resolution{0, 0};
-}
+} // namespace LibOS
