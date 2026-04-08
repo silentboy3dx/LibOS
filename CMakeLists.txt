@@ -35,14 +35,12 @@ add_library(LibOS STATIC
         src/library.cpp
 )
 
-
 if (WINDOWS_PLATFORM)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_WINDOWS)
     target_sources(${PROJECT_NAME} PRIVATE
             include/public/LibOS/desktop/Windows.hpp
             src/LibOS/system/Windows.cpp
     )
-    include(Windows OPTIONAL)
 endif()
 
 if (X11_PLATFORM)
@@ -51,7 +49,6 @@ if (X11_PLATFORM)
             include/private/LibOS/desktop/Linux/X11.h
             src/LibOS/desktop/Linux/X11.cpp
     )
-    include(Windows OPTIONAL)
 endif()
 
 if (HYPRLAND_PLATFORM)
@@ -62,7 +59,7 @@ if (HYPRLAND_PLATFORM)
             src/LibOS/desktop/Linux/Hyprland.cpp
     )
 
-    include(HyprlandProtocols)
+    include(HyprlandProtocols-LibOS)
 
     target_sources(${PROJECT_NAME} PRIVATE
             ${HYPRLAND_PROTOCOL_SOURCES}
@@ -92,10 +89,10 @@ endif()
 target_compile_definitions(LibOS PUBLIC LIBOS_EXPORTS)
 
 if (X11_PLATFORM)
-    include(X11)
+    include(X11-LibOS)
 endif()
 
-include(Json)
+include(Json-LibOS)
 
 include(GNUInstallDirs)
 
