@@ -73,8 +73,6 @@ if (HYPRLAND_PLATFORM)
     )
 endif()
 
-
-
 target_include_directories(LibOS
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/public>
@@ -99,18 +97,12 @@ endif()
 
 include(Json)
 
-# ============================================================
-# Install rules
-# ============================================================
-
 include(GNUInstallDirs)
 
-# Install headers
 install(DIRECTORY include/public/LibOS
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-# Install library
 install(TARGETS
         LibOS
         EXPORT LibOSTargets
@@ -118,14 +110,12 @@ install(TARGETS
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-# Export targets
 install(EXPORT LibOSTargets
         FILE LibOSTargets.cmake
         NAMESPACE LibOS::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/LibOS
 )
 
-# Generate LibOSConfig.cmake
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
