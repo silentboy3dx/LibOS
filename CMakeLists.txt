@@ -28,10 +28,8 @@ add_library(LibOS STATIC
         src/LibOS/desktop/Windows.cpp
         src/LibOS/desktop/Base.cpp
 
-
         src/LibOS/system/Linux.cpp
         src/LibOS/system/Base.cpp
-
         src/library.cpp
 )
 
@@ -93,6 +91,10 @@ if (X11_PLATFORM)
 endif()
 
 include(Json-LibOS)
+
+if (SPARKLE_SUPERBUILD)
+    message(STATUS "❤️  ${PROJECT_NAME} USING Superbuild")
+endif()
 
 include(GNUInstallDirs)
 
