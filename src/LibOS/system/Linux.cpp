@@ -1,5 +1,7 @@
 #include "LibOS/system/Linux.hpp"
 
+#include <cstdlib>
+
 #if PLATFORM_LINUX
 #include <sys/utsname.h>
 
@@ -55,6 +57,22 @@ namespace LibOS::System {
         return info;
     }
 
+    std::optional<std::string> Windows::GetEnv(const std::string &key) {
+        const char* value = std::getenv(key.c_str());
+        if (!value)
+            return std::nullopt;
 
+        return std::string(value);
+    }
+
+    bool Windows::PutEnv(const std::string &key, const std::string &value) {
+        std::string entry = key + "=" + value;
+
+        char* env = new char[entry.size() + 1];
+        std::copy(entry.begin(), entry.end(), env);
+        env[entry.size()] = '\0';
+
+        return putenv(env) == 0;
+    }
 }
 #endif

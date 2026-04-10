@@ -1,10 +1,10 @@
 #include "LibOS/system/Windows.hpp"
 
+#include <cstdlib>
+
 #if PLATFORM_WINDOWS
-
 namespace LibOS::System {
-
-    Windows& Windows::getInstance() {
+    Windows &Windows::getInstance() {
         static Windows instance;
         return instance;
     }
@@ -47,6 +47,22 @@ namespace LibOS::System {
         info.runtime = "MSVC STL";
 
         return info;
+    }
+
+    std::optional<std::string> Windows::GetEnv(const std::string &key) {
+        char *buffer = nullptr;
+        size_t size = 0;
+
+        if (_dupenv_s(&buffer, &size, key.c_str()) != 0 || buffer == nullptr)
+            return std::nullopt;
+
+        std::string value(buffer);
+        free(buffer);
+        return value;
+    }
+
+    bool Windows::PutEnv(const std::string &key, const std::string &value) {
+        return _putenv_s(key.c_str(), value.c_str()) == 0;
     }
 }
 #endif
