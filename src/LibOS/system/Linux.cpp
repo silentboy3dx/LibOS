@@ -57,7 +57,7 @@ namespace LibOS::System {
         return info;
     }
 
-    std::optional<std::string> Windows::GetEnv(const std::string &key) {
+    std::optional<std::string> Linux::GetEnv(const std::string &key) {
         const char* value = std::getenv(key.c_str());
         if (!value)
             return std::nullopt;
@@ -65,7 +65,7 @@ namespace LibOS::System {
         return std::string(value);
     }
 
-    bool Windows::PutEnv(const std::string &key, const std::string &value) {
+    bool Linux::PutEnv(const std::string &key, const std::string &value) {
         std::string entry = key + "=" + value;
 
         char* env = new char[entry.size() + 1];
