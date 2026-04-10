@@ -25,4 +25,7 @@ namespace LibOS {
     std::optional<WindowInfo> GetActiveWindow();
     Resolution GetScreenResolution();
     SystemInfo GetSystemInfo();
+
+    std::optional<std::string> GetEnv(const std::string& key);
+    bool PutEnv(const std::string& key, const std::string& value);
 }
