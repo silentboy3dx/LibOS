@@ -9,8 +9,8 @@ namespace LibOS::System {
         static Linux &getInstance();
 
         SystemInfo GetSystemInfo() override;
-        std::optional<std::string> GetEnv(const std::string& key) override;
-        bool PutEnv(const std::string& key, const std::string& value) override;
+        std::optional<std::string> GetEnv(const std::string &key) override;
+        bool PutEnv(const std::string &key, const std::string &value) override;
 
     private:
         Linux() = default;

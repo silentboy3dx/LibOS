@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #if PLATFORM_LINUX
+#pragma warning("WARNING HERE")
 #include <sys/utsname.h>
 
 using namespace LibOS::System;
@@ -75,4 +76,6 @@ namespace LibOS::System {
         return putenv(env) == 0;
     }
 }
+#else
+#pragma warning("GOT YA!")
 #endif
