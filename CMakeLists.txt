@@ -6,13 +6,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-if(NOT (WINDOWS_PLATFORM OR X11_PLATFORM OR HYPRLAND_PLATFORM))
+if(NOT (WINDOWS_PLATFORM OR X11_PLATFORM OR WLROOTS_PLATFORM))
     message(FATAL_ERROR
             "No backend selected. Enable at least one of: "
-            "WINDOWS_PLATFORM, X11_PLATFORM, HYPRLAND_PLATFORM."
+            "WINDOWS_PLATFORM, X11_PLATFORM, WLROOTS_PLATFORM."
     )
 endif()
-
 
 
 add_library(LibOS STATIC
@@ -52,7 +51,7 @@ if (X11_PLATFORM)
     )
 endif()
 
-if (HYPRLAND_PLATFORM)
+if (WLROOTS_PLATFORM)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_HYPRLAND)
     target_sources(${PROJECT_NAME} PRIVATE
             include/private/LibOS/desktop/Linux/Hyprland.h
@@ -78,7 +77,6 @@ if (PLATFORM_LINUX)
             src/LibOS/desktop/Linux.cpp
             src/LibOS/system/Linux.cpp
     )
-
 endif ()
 
 target_include_directories(LibOS
