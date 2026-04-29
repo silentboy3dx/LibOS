@@ -36,7 +36,6 @@ namespace {
         }
 
         try {
-            std::cout << output << std::endl;
             return json::parse(output);
         } catch (...) {
             return std::nullopt;
